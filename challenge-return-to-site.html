@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تحدّي اللطف | قلوبنا أمان</title>
+<style>
+:root{--purple:#7250a5;--purple-dark:#563783;--pink:#f5dce9;--ink:#343044}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Tahoma,Arial,sans-serif;color:var(--ink);
+background:linear-gradient(135deg,#f8eaf2,#e8f2ef);display:grid;place-items:center;padding:20px}
+.page{width:min(900px,100%);text-align:center;position:relative}
+.page h1{color:#68478f;font-size:clamp(26px,4vw,40px);margin:0 0 10px}
+.page p{font-size:18px;line-height:1.9}
+.page .hint{color:#756d7d}
+.open-btn,.action-btn{border:0;border-radius:15px;padding:14px 28px;font-size:17px;font-weight:bold;cursor:pointer;background:var(--purple);color:#fff;box-shadow:0 4px 0 var(--purple-dark);transition:.2s}
+.open-btn:hover,.action-btn:hover{transform:translateY(-2px)}
+.overlay{position:fixed;inset:0;background:rgba(36,31,46,.52);display:grid;place-items:center;padding:16px;z-index:5}
+.modal{width:min(760px,100%);min-height:390px;background:#fff;border-radius:30px;padding:34px 38px;box-shadow:0 18px 55px #241d3340;position:relative;text-align:right}
+.close{position:absolute;left:24px;top:22px;border:0;background:#f5f2f7;color:#80758c;border-radius:50%;width:38px;height:38px;font-size:23px;cursor:pointer}
+.modal h2{font-size:clamp(25px,4vw,36px);margin:8px 0 28px;color:#292536}
+.counter{color:#88818e;font-size:16px;margin:0 0 44px}
+.task{font-size:clamp(21px,3vw,27px);line-height:2;text-align:center;margin:0 auto 42px;max-width:580px;min-height:92px}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.secondary{background:#f4edf8;color:#55416f;box-shadow:0 4px 0 #dfd1e9}
+.feedback{font-size:18px;color:#56856c;text-align:center;margin:18px 0 0;min-height:28px}
+.finish{text-align:center}
+.finish .star{font-size:72px;margin:8px}
+.finish h2{color:#68478f;margin:8px 0 18px}
+.finish p{font-size:19px;line-height:1.9}
+.hidden{display:none!important}
+@media(max-width:520px){.modal{padding:30px 20px;min-height:360px}.counter{margin-bottom:28px}.task{margin-bottom:28px}.close{left:15px;top:15px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>🎀 قلوبنا أمان 🎀</h1>
+  <p>اللطف يجعل مدرستنا مكانًا أجمل وأكثر أمانًا.</p>
+  <p class="hint">اضغطي على الزر لبدء تحدّي اللطف وإنجاز خمس خطوات بسيطة.</p>
+  <button class="open-btn" onclick="openChallenge()">ابدئي تحدّي اللطف 🌷</button>
+</main>
+
+<section class="overlay" id="overlay" aria-modal="true" role="dialog" aria-labelledby="title">
+  <div class="modal">
+    <button class="close" onclick="closeChallenge()" aria-label="إغلاق">×</button>
+    <div id="challengeView">
+      <h2 id="title">🌞 تحدّي اللطف</h2>
+      <p class="counter" id="counter">التحدي 1 من 5</p>
+      <p class="task" id="task">ابتسمي لزميلتكِ وألقي عليها تحية لطيفة.</p>
+      <div class="actions">
+        <button class="action-btn" id="doneBtn" onclick="completeTask()">أنجزت التحدي</button>
+        <button class="action-btn secondary hidden" id="nextBtn" onclick="nextTask()">التحدي التالي ←</button>
+      </div>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+    </div>
+    <div class="finish hidden" id="finishView">
+      <div class="star">🌟</div>
+      <h2>أحسنتِ يا نجمة اللطف!</h2>
+      <p>أكملتِ التحديات الخمسة، ونشرتِ اللطف من حولكِ.<br>استمري في جعل كلماتكِ وأفعالكِ مصدر سعادة وأمان.</p>
+      <button class="action-btn" onclick="restartChallenge()">إعادة التحدي</button>
+      <button class="action-btn secondary" onclick="closeChallenge()">العودة إلى رحلتي</button>
+    </div>
+  </div>
+</section>
+<script>
+const tasks = [
+  "ابتسمي لزميلتكِ وألقي عليها تحية لطيفة.",
+  "امدحي زميلتكِ بكلمة جميلة وشجّعيها على المحاولة.",
+  "استمعي لصديقتكِ دون مقاطعة، وأظهري لها اهتمامكِ.",
+  "قدّمي المساعدة لزميلة تحتاج إلى دعمكِ.",
+  "اشكري معلمتكِ أو أحد أفراد أسرتكِ على مساعدته."
+];
+let current = 0;
+const overlay = document.getElementById("overlay");
+const taskText = document.getElementById("task");
+const counter = document.getElementById("counter");
+const doneBtn = document.getElementById("doneBtn");
+const nextBtn = document.getElementById("nextBtn");
+const feedback = document.getElementById("feedback");
+function renderTask(){
+  counter.textContent = `التحدي ${current+1} من ${tasks.length}`;
+  taskText.textContent = tasks[current];
+  feedback.textContent = "";
+  doneBtn.classList.remove("hidden");
+  nextBtn.classList.add("hidden");
+}
+function completeTask(){
+  feedback.textContent = "أحسنتِ! اكتمل هذا التحدي بنجاح ✓";
+  doneBtn.classList.add("hidden");
+  if(current < tasks.length-1){
+    nextBtn.textContent = "التحدي التالي ←";
+    nextBtn.classList.remove("hidden");
+  }else{
+    nextBtn.textContent = "عرض النتيجة 🌟";
+    nextBtn.classList.remove("hidden");
+  }
+}
+function nextTask(){
+  if(current < tasks.length-1){current++;renderTask();}
+  else{
+    document.getElementById("challengeView").classList.add("hidden");
+    document.getElementById("finishView").classList.remove("hidden");
+  }
+}
+function restartChallenge(){
+  current=0;
+  document.getElementById("finishView").classList.add("hidden");
+  document.getElementById("challengeView").classList.remove("hidden");
+  renderTask();
+}
+function openChallenge(){overlay.classList.remove("hidden");}
+function closeChallenge(){window.location.href="https://amynhs592-hue.github.io/quloob-amana-quiz/";}
+renderTask();
+</script>
+</body>
+</html>
